@@ -27,9 +27,6 @@ print("Type of the model:", type(model))
 print("Number of classes in the label encoder:", len(label_encoder.classes_))
 
 
-# ==================================================
-# REQUEST SCHEMA
-# ==================================================
 
 class DNSRequest(BaseModel):
 
@@ -66,9 +63,9 @@ class DNSRequest(BaseModel):
     ttl_variance: float
 
 
-# ==================================================
+
 # PREPROCESSING FUNCTIONS
-# ==================================================
+
 
 def count_rr_types(value):
 
@@ -137,11 +134,6 @@ def ttl_count(value):
     except Exception:
         return 0
 
-
-# ==================================================
-# ROOT ENDPOINT
-# ==================================================
-
 @app.get("/")
 def root():
 
@@ -150,9 +142,8 @@ def root():
     }
 
 
-# ==================================================
 # PREDICTION ENDPOINT
-# ==================================================
+
 
 @app.post("/predict")
 def predict_dns(data: DNSRequest):
@@ -164,9 +155,9 @@ def predict_dns(data: DNSRequest):
     df = pd.DataFrame([dns_data])
 
 
-    # --------------------------------------------------
+ 
     # Feature engineering
-    # --------------------------------------------------
+  
 
     # 1. DNS record type count
     df["rr_type_count"] = df["rr_type"].apply(
@@ -203,9 +194,9 @@ def predict_dns(data: DNSRequest):
     )
 
 
-    # --------------------------------------------------
+  
     # EXACT 17 FEATURES USED BY XGBOOST
-    # --------------------------------------------------
+  
 
     selected_features = [
 
@@ -249,18 +240,18 @@ def predict_dns(data: DNSRequest):
     X = df[selected_features]
 
 
-    # --------------------------------------------------
+
     # PREDICTION
-    # --------------------------------------------------
+   
 
     prediction = model.predict(X)[0]
 
     prediction = int(prediction)
 
 
-    # --------------------------------------------------
+  
     # PROBABILITIES
-    # --------------------------------------------------
+  
 
     probabilities = model.predict_proba(X)[0]
 
@@ -269,18 +260,18 @@ def predict_dns(data: DNSRequest):
     confidence = float(probabilities[prediction])
 
 
-    # --------------------------------------------------
+    
     # DECODE LABEL
-    # --------------------------------------------------
+    
 
     predicted_label = label_encoder.inverse_transform(
         [prediction]
     )[0]
 
 
-    # --------------------------------------------------
+  
     # ALL CLASS PROBABILITIES
-    # --------------------------------------------------
+   
 
     class_probabilities = {}
 
@@ -296,9 +287,7 @@ def predict_dns(data: DNSRequest):
         )
 
 
-    # --------------------------------------------------
-    # RESPONSE
-    # --------------------------------------------------
+   
 
     return {
 
